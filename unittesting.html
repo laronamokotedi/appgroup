@@ -31,7 +31,12 @@
 	name : "IH_NW_CRN",	
 	building : "IH",
 	});
-	
+	var S_SA_PATH=new Object({//point on path south of Southam hall
+	lat:45.380935,
+	lng:-75.699561,
+	name:"S_SA_PATH",
+	building:"null",
+	});
 	
 	var PATH_BETW_AH_IH = new Object({
 	lat : 45.386195,
@@ -41,15 +46,13 @@
 	
 	});	
 	var contentString=" ";
-	PATH_BETW_AH_IH.SURR=new Array(ALUM_BETW_SMC,IH_NE_CRN,IH_NW_CRN);
+	PATH_BETW_AH_IH.SURR=new Array(IH_NE_CRN,ALUM_BETW_SMC,IH_NW_CRN);
 	var length=PATH_BETW_AH_IH.SURR.length;
 	var contentsting=(PATH_BETW_AH_IH.SURR[0].name);
 	for(var i=0;i<length;i++){
 	contentString+=(PATH_BETW_AH_IH.SURR[i].name+", ");
 	
 	}
-	
-	
 	
 	
 	
@@ -62,12 +65,17 @@
             mapOptions);
 			
 		var myLatlng = new google.maps.LatLng(PATH_BETW_AH_IH.lat,PATH_BETW_AH_IH.lng);
-		
+		var destLatlng= new google.maps.LatLng(S_SA_PATH.lat,S_SA_PATH.lng);
 		var marker = new google.maps.Marker({
 		position: myLatlng,
-		title:"Hello World!"
+		title:"location"
 		});
-		
+		//sets up marker to destination
+		var destmarker = new google.maps.Marker({
+		position: destLatlng,
+		map: map,
+		title:"destination"
+		});
 		var infowindow = new google.maps.InfoWindow({
 		content: contentString
 		});
@@ -75,22 +83,42 @@
 		google.maps.event.addListener(marker, 'click', function() {
 		infowindow.open(map,marker);
 		});
+		google.maps.event.addListener(destmarker, 'click', function() {
+		infowindow.open(map,destmarker);
+		});
 		
 
 		
 		// To add the marker to the map, call setMap();
 		marker.setMap(map);	
-		var length=PATH_BETW_AH_IH.SURR.length;
 		
+		
+		var length=PATH_BETW_AH_IH.SURR.length;
+		var dist=100000;// intialize dist to high arbitrary number
+		//for loop to make marker only for closest point to destination
 		for(var w=0;w<length;w++){
 		var getX=(PATH_BETW_AH_IH.SURR[w].lat);
 		var getY=(PATH_BETW_AH_IH.SURR[w].lng);
-		var markcoord=new google.maps.LatLng(getX,getY);
-		var marker2 = new google.maps.Marker({
-		position: markcoord,
-		map: map,
-		title:"Hello World!"
-		});
+		var destX=(S_SA_PATH.lat);
+		var destY=(S_SA_PATH.lng);
+		//code segment to find dist between destination and point
+		var lats=Math.pow(destX-getX,2);
+		var lngs=Math.pow(destY-getY,2);
+		var pt_distance=Math.sqrt(lats+lngs);
+		
+		if(dist>pt_distance){
+			
+			dist=pt_distance;//update the distance
+			//only place the marker for the closest pt
+			if(w=length-1){//make sure its the last cycle before placing the marker
+			var markcoord=new google.maps.LatLng(getX,getY);
+			var marker2 = new google.maps.Marker({
+			position: markcoord,
+			map: map,
+			title:"closest point"
+			});
+			}
+			}
 		
 	
 		}	
